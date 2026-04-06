@@ -4,13 +4,29 @@ import { createClient } from '@libsql/client';
 const url = process.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
 
+// Log configuration for debugging
+console.log('=== DATABASE CONFIGURATION ===');
+console.log('TURSO_DATABASE_URL:', url ? '✓ SET' : '✗ NOT SET');
+console.log('TURSO_AUTH_TOKEN:', authToken ? '✓ SET' : '✗ NOT SET');
+
 // Use a local file 'safeguard.db' instead of memory for better persistence chance in environments allowing FS
 const dbConfig = {
   url: url || 'file:safeguard.db',
   authToken: authToken,
 };
 
+console.log('Using database:', url ? 'Turso (Cloud)' : 'Local File (safeguard.db)');
+console.log('==============================\n');
+
 export const db = createClient(dbConfig);
+
+// Test connection on startup (non-blocking)
+db.execute('SELECT 1 as test')
+  .then(() => console.log('✓ Database connection successful'))
+  .catch(e => {
+    console.error('✗ Database connection failed:', e.message);
+    console.error('Please check your TURSO_DATABASE_URL and TURSO_AUTH_TOKEN');
+  });
 
 // Utility to parse JSON fields safely
 export const parseRow = (row) => {
