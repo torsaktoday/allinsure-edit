@@ -123,7 +123,7 @@ export default async function handler(req, res) {
     if (isHardReset) {
         logs.push("!!! NUCLEAR OPTION ACTIVATED !!!");
         
-        // 1. DROP ALL TABLES
+        // 1. DROP ALL TABLES (one by one to handle errors gracefully)
         const tables = ['users', 'companies', 'car_makes', 'car_models', 'leads', 'knowledge_base', 'system_settings', 'chat_logs', 'plans', 'plan_kb'];
         for (const t of tables) {
             try {
@@ -133,6 +133,9 @@ export default async function handler(req, res) {
                 logs.push(`Drop '${t}' warning: ` + e.message);
             }
         }
+        
+        // Small delay to ensure drops are complete
+        await new Promise(r => setTimeout(r, 500));
 
         // 2. CREATE ALL TABLES
         logs.push("Creating Schemas...");
@@ -290,28 +293,65 @@ export default async function handler(req, res) {
         
         logs.push("All tables CREATED (including comprehensive plan_kb).");
 
-        // 3. SEED DATA
+        // 3. SEED DATA - Use batch for better performance
         logs.push("Seeding FRESH data...");
 
-        // Users
-        for(const u of SEED_DATA.users) await db.execute({ sql: 'INSERT INTO users (id, username, role, name, status) VALUES (?,?,?,?,?)', args: [u.id, u.username, u.role, u.name, u.status]});
-        // Companies
-        for(const c of SEED_DATA.companies) await db.execute({ sql: 'INSERT INTO companies (id, name, logoUrl, color) VALUES (?,?,?,?)', args: [c.id, c.name, c.logoUrl, c.color]});
-        // Makes
-        for(const m of SEED_DATA.makes) await db.execute({ sql: 'INSERT INTO car_makes (id, name, logoUrl) VALUES (?,?,?)', args: [m.id, m.name, m.logoUrl]});
-        // Models
-        for(const mo of SEED_DATA.models) await db.execute({ sql: 'INSERT INTO car_models (id, makeId, name, subModels) VALUES (?,?,?,?)', args: [mo.id, mo.makeId, mo.name, JSON.stringify(mo.subModels)]});
-        // KB
-        for(const k of SEED_DATA.kb) await db.execute({ sql: 'INSERT INTO knowledge_base (id, question, answer, category) VALUES (?,?,?,?)', args: [k.id, k.question, k.answer, k.category]});
-        // Settings
-        for(const s of SEED_DATA.settings) await db.execute({ sql: 'INSERT INTO system_settings (key, value) VALUES (?,?)', args: [s.key, s.value]});
+        // Prepare all insert statements
+        const statements = [];
 
-        // Plans & Detailed Plan KB Population
+        // Users
+        for(const u of SEED_DATA.users) {
+            statements.push({
+                sql: 'INSERT INTO users (id, username, role, name, status) VALUES (?,?,?,?,?)',
+                args: [u.id, u.username, u.role, u.name, u.status]
+            });
+        }
+
+        // Companies
+        for(const c of SEED_DATA.companies) {
+            statements.push({
+                sql: 'INSERT INTO companies (id, name, logoUrl, color) VALUES (?,?,?,?)',
+                args: [c.id, c.name, c.logoUrl, c.color]
+            });
+        }
+
+        // Makes
+        for(const m of SEED_DATA.makes) {
+            statements.push({
+                sql: 'INSERT INTO car_makes (id, name, logoUrl) VALUES (?,?,?)',
+                args: [m.id, m.name, m.logoUrl]
+            });
+        }
+
+        // Models
+        for(const mo of SEED_DATA.models) {
+            statements.push({
+                sql: 'INSERT INTO car_models (id, makeId, name, subModels) VALUES (?,?,?,?)',
+                args: [mo.id, mo.makeId, mo.name, JSON.stringify(mo.subModels)]
+            });
+        }
+
+        // KB
+        for(const k of SEED_DATA.kb) {
+            statements.push({
+                sql: 'INSERT INTO knowledge_base (id, question, answer, category) VALUES (?,?,?,?)',
+                args: [k.id, k.question, k.answer, k.category]
+            });
+        }
+
+        // Settings
+        for(const s of SEED_DATA.settings) {
+            statements.push({
+                sql: 'INSERT INTO system_settings (key, value) VALUES (?,?)',
+                args: [s.key, s.value]
+            });
+        }
+
+        // Plans
         for (const r of SEED_DATA.plans) {
-            // Fix: Serialize applicableCars correctly before inserting into PLANS table
             const applicableCarsString = typeof r.applicableCars === 'string' ? r.applicableCars : JSON.stringify(r.applicableCars);
             
-            await db.execute({
+            statements.push({
                 sql: `INSERT INTO plans (
                     id, agentId, companyId, planName, type, price, status, isHotDeal, createdAt, details, 
                     applicableCars, sumInsured, deductible, repairType, emergencyService, floodCoverage, searchable_attributes
@@ -324,12 +364,10 @@ export default async function handler(req, res) {
 
             // Populate Comprehensive KB
             if (r.applicableCars && Array.isArray(r.applicableCars)) {
-                // Parse details for detailed columns
                 let details = {};
                 try { details = JSON.parse(r.details); } catch(e) {}
                 const companyName = SEED_DATA.companies.find(c => c.id === r.companyId)?.name || 'Unknown';
                 
-                // Build Feature String
                 const features = [
                     ...(details.otherServices || []),
                     ...(details.additionalCoverages?.map(c => c.name) || []),
@@ -342,7 +380,7 @@ export default async function handler(req, res) {
                     
                     const kbId = `${r.id}_${criteria.id || Date.now()}_${Math.random()}`;
 
-                    await db.execute({
+                    statements.push({
                         sql: `INSERT INTO plan_kb (
                             id, planId, planName, companyName, makeName, modelName, sub_models, yearMin, yearMax, price, planType, repairType,
                             sumInsured, deductible, fireTheft, floodCoverage,
@@ -358,7 +396,6 @@ export default async function handler(req, res) {
                             criteria.yearMin, criteria.yearMax,
                             r.price, r.type, r.repairType,
                             
-                            // Detailed Coverages
                             details.sumInsured || 0,
                             details.deductible || 0,
                             details.fireTheft || 0,
@@ -378,6 +415,19 @@ export default async function handler(req, res) {
                         ]
                     });
                 }
+            }
+        }
+
+        // Execute all statements in batches (Turso has limits)
+        const batchSize = 50;
+        for (let i = 0; i < statements.length; i += batchSize) {
+            const batch = statements.slice(i, i + batchSize);
+            try {
+                await db.batch(batch);
+                logs.push(`Batch ${Math.floor(i / batchSize) + 1} inserted (${batch.length} statements)`);
+            } catch (e) {
+                logs.push(`Batch ${Math.floor(i / batchSize) + 1} error: ${e.message}`);
+                throw e;
             }
         }
 
