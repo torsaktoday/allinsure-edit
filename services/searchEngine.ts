@@ -1,6 +1,32 @@
 
 import { CarMake, CarModel, InsurancePlan, KnowledgeBaseItem, SearchResult } from "../types";
 
+// --- FUZZY MATCHING HELPER ---
+function levenshteinDistance(a: string, b: string): number {
+    const matrix: number[][] = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1,
+                    matrix[i][j - 1] + 1,
+                    matrix[i - 1][j] + 1
+                );
+            }
+        }
+    }
+    return matrix[b.length][a.length];
+}
+
+function fuzzyMatch(input: string, target: string, maxDistance: number = 2): boolean {
+    const distance = levenshteinDistance(input.toLowerCase(), target.toLowerCase());
+    return distance <= maxDistance;
+}
+
 // --- CONSTANTS & MAPS ---
 export const THAI_BRAND_MAP: Record<string, string> = {
     'โตโยต้า': 'Toyota', 'โตโยตา': 'Toyota', 'toyota': 'Toyota', 'toyato': 'Toyota',
@@ -305,7 +331,21 @@ export class SearchEngine {
         if (!model) {
             const sortedModelKeys = Object.keys(NORMALIZED_MODEL_MAP).sort((a, b) => b.length - a.length);
             for (const modelKey of sortedModelKeys) {
+                // Try exact match first
                 if (lower.includes(modelKey)) {
+                    const normalizedModelName = NORMALIZED_MODEL_MAP[modelKey];
+                    const makeKey = Object.keys(COMMON_MODEL_TO_MAKE_MAP).find(k => normalizedModelName.toLowerCase().includes(k) || modelKey.includes(k));
+                    if (makeKey) {
+                        make = COMMON_MODEL_TO_MAKE_MAP[makeKey];
+                    }
+                    model = normalizedModelName;
+                    rawModelKeyword = modelKey;
+                    hasNewCarIntent = true;
+                    hasRelevance = true;
+                    break;
+                }
+                // Try fuzzy match for typos (e.g. "ยาริส" vs "ยารีส")
+                else if (fuzzyMatch(lower, modelKey, 2)) {
                     const normalizedModelName = NORMALIZED_MODEL_MAP[modelKey];
                     const makeKey = Object.keys(COMMON_MODEL_TO_MAKE_MAP).find(k => normalizedModelName.toLowerCase().includes(k) || modelKey.includes(k));
                     if (makeKey) {
@@ -322,9 +362,18 @@ export class SearchEngine {
 
         // 7. Make Lookup
         if (!make) {
-            for (const [key, value] of Object.entries(THAI_BRAND_MAP)) {
+            const sortedBrandKeys = Object.keys(THAI_BRAND_MAP).sort((a, b) => b.length - a.length);
+            for (const key of sortedBrandKeys) {
+                // Try exact match first
                 if (lower.includes(key)) {
-                    make = value;
+                    make = THAI_BRAND_MAP[key];
+                    hasNewCarIntent = true;
+                    hasRelevance = true;
+                    break;
+                }
+                // Try fuzzy match for typos
+                else if (fuzzyMatch(lower, key, 2)) {
+                    make = THAI_BRAND_MAP[key];
                     hasNewCarIntent = true;
                     hasRelevance = true;
                     break;
