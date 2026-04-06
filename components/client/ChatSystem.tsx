@@ -222,9 +222,9 @@ export const ChatSystem: React.FC<ChatSystemProps> = ({ masterData, settings = [
                     {parts.map((part, index) => {
                         if (part.startsWith('**') && part.endsWith('**')) {
                             return (
-                                <span key={index} className="font-bold text-slate-800 mx-0.5">
+                                <strong key={index} className="font-bold text-slate-800">
                                     {part.slice(2, -2)}
-                                </span>
+                                </strong>
                             );
                         }
                         return part;
