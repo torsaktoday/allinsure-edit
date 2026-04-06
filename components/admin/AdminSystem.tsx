@@ -788,6 +788,34 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout,
                             </div>
                             <p className="text-xs text-slate-400">ใช้ Key ส่วนตัวกรณี Key หลักมีปัญหา (บันทึกใน Database)</p>
                         </div>
+
+                        {/* AI Connection Status */}
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Bot size={18} className="text-blue-600"/>
+                                    <span className="font-bold text-slate-700">สถานะการเชื่อมต่อ AI</span>
+                                </div>
+                                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-bold ${
+                                    systemStatus.api === 'เชื่อมต่อแล้ว' 
+                                        ? 'bg-green-100 text-green-700' 
+                                        : 'bg-red-100 text-red-700'
+                                }`}>
+                                    <div className={`w-2 h-2 rounded-full ${systemStatus.api === 'เชื่อมต่อแล้ว' ? 'bg-green-600' : 'bg-red-600'}`}></div>
+                                    {systemStatus.api}
+                                </div>
+                            </div>
+                            <div className="text-xs text-slate-600 space-y-1">
+                                <p>• โมเดล: <span className="font-mono font-bold text-slate-800">{aiModel}</span></p>
+                                <p>• API Key: <span className="font-mono text-slate-600">{customKey ? '✓ มี' : '✗ ไม่มี'}</span></p>
+                            </div>
+                            <button 
+                                onClick={refreshSystemStatus}
+                                className="w-full py-2 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                            >
+                                <RefreshCw size={14}/> ทดสอบการเชื่อมต่อ
+                            </button>
+                        </div>
                     </div>
                 )}
             </main>
