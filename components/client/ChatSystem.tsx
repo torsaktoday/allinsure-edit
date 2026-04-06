@@ -222,7 +222,7 @@ export const ChatSystem: React.FC<ChatSystemProps> = ({ masterData, settings = [
                     {parts.map((part, index) => {
                         if (part.startsWith('**') && part.endsWith('**')) {
                             return (
-                                <strong key={index} className="font-bold text-slate-800">
+                                <strong key={index} className="font-bold text-slate-800 select-none">
                                     {part.slice(2, -2)}
                                 </strong>
                             );
@@ -680,7 +680,7 @@ export const ChatSystem: React.FC<ChatSystemProps> = ({ masterData, settings = [
                 </div>
             </header>
 
-            <main className={`flex-1 relative z-10 w-full ${isHome ? 'flex flex-col' : 'overflow-y-auto pt-16 pb-32 no-scrollbar'}`} ref={chatContainerRef}>
+            <main className={`flex-1 relative z-10 w-full ${isHome ? 'flex flex-col' : 'overflow-y-auto pt-24 pb-32 no-scrollbar'}`} ref={chatContainerRef}>
                 
                 {isHome && (
                     <div className="flex-1 flex flex-col items-center justify-between h-full pt-20 pb-safe px-4 w-full max-w-md mx-auto md:max-w-4xl">
@@ -794,7 +794,7 @@ export const ChatSystem: React.FC<ChatSystemProps> = ({ masterData, settings = [
 
                                         <div className="flex flex-col gap-2 w-full min-w-0">
                                             {msg.text && (
-                                                <div className={`px-4 py-3 rounded-2xl text-[15px] leading-relaxed shadow-sm self-start ${
+                                                <div className={`px-4 py-3 rounded-2xl text-[15px] leading-relaxed shadow-sm self-start select-none ${
                                                     msg.role === 'user' 
                                                         ? 'bubble-user rounded-tr-none font-medium self-end' 
                                                         : 'bubble-ai rounded-tl-none bg-white'
