@@ -6,6 +6,7 @@ import { AdminSystem } from './components/admin/AdminSystem';
 import { ChatSystem } from './components/client/ChatSystem';
 
 const CACHE_KEY = 'safeguard_master_data';
+const ADMIN_SESSION_KEY = 'safeguard_admin_session';
 
 const App: React.FC = () => {
     // --- Global Data State ---
@@ -28,7 +29,18 @@ const App: React.FC = () => {
     // --- Initialization ---
     useEffect(() => {
         const startUp = async () => {
-            // 1. Instant Load from Cache
+            // 1. Restore Admin Session from localStorage
+            const savedSession = localStorage.getItem(ADMIN_SESSION_KEY);
+            if (savedSession) {
+                try {
+                    const user = JSON.parse(savedSession);
+                    setCurrentUser(user);
+                } catch (e) {
+                    console.error("Session restore error", e);
+                }
+            }
+
+            // 2. Instant Load from Cache
             const cached = localStorage.getItem(CACHE_KEY);
             if (cached) {
                 try {
@@ -49,7 +61,7 @@ const App: React.FC = () => {
             // while we fetch fresh data in the background.
             setIsInitializing(false);
 
-            // 2. Fetch Fresh Data (Background)
+            // 3. Fetch Fresh Data (Background)
             await fetchFreshData();
         };
 
@@ -95,7 +107,10 @@ const App: React.FC = () => {
     const handleLogin = () => {
         if ((adminUsername === 'admin' || adminUsername === 'agent') && adminPassword === 'sis1234') {
             const role = adminUsername === 'admin' ? UserRole.ADMIN : UserRole.AGENT;
-            setCurrentUser({ id: adminUsername, username: adminUsername, role: role, name: role === UserRole.ADMIN ? 'Super Admin' : 'Agent', status: 'ACTIVE' });
+            const user = { id: adminUsername, username: adminUsername, role: role, name: role === UserRole.ADMIN ? 'Super Admin' : 'Agent', status: 'ACTIVE' };
+            setCurrentUser(user);
+            // Save session to localStorage
+            localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(user));
             setShowAdminLogin(false);
         } else {
             alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
@@ -104,6 +119,8 @@ const App: React.FC = () => {
 
     const handleLogout = () => {
         setCurrentUser(null);
+        // Remove session from localStorage
+        localStorage.removeItem(ADMIN_SESSION_KEY);
         fetchFreshData(); // Refresh to ensure latest settings are applied
     };
 
