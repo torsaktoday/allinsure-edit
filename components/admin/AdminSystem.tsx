@@ -321,9 +321,14 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout,
                 <div className="font-bold text-lg flex items-center gap-2">
                     <LayoutDashboard className="text-white"/> SafeGuard
                 </div>
-                <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2">
-                    {isSidebarOpen ? <X size={24}/> : <Menu size={24}/>}
-                </button>
+                <div className="flex items-center gap-2">
+                    <button onClick={onLogout} className="p-2 hover:bg-red-500/20 rounded-lg transition">
+                        <LogOut size={18} className="text-red-400"/>
+                    </button>
+                    <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2">
+                        {isSidebarOpen ? <X size={24}/> : <Menu size={24}/>}
+                    </button>
+                </div>
             </div>
 
             {/* Sidebar Overlay (Mobile) */}
@@ -337,9 +342,14 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout,
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
                 md:relative md:translate-x-0
             `}>
-                    <div className="p-6 font-bold text-xl items-center gap-2 border-b border-slate-800 bg-gradient-to-r from-blue-600 to-blue-800 hidden md:flex">
-                        <LayoutDashboard className="text-white"/> SafeGuard
-                        <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">{currentUser.role}</span>
+                    <div className="p-6 font-bold text-xl items-center gap-2 border-b border-slate-800 bg-gradient-to-r from-blue-600 to-blue-800 hidden md:flex justify-between">
+                        <div className="flex items-center gap-2">
+                            <LayoutDashboard className="text-white"/> SafeGuard
+                            <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">{currentUser.role}</span>
+                        </div>
+                        <button onClick={onLogout} className="text-xs bg-red-500/20 hover:bg-red-500 text-red-200 hover:text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                            <LogOut size={14}/> ออกจากระบบ
+                        </button>
                     </div>
                     {/* Mobile Only Header inside Sidebar (optional space filler or User Info) */}
                     <div className="p-6 border-b border-slate-800 bg-gradient-to-r from-blue-600 to-blue-800 md:hidden mt-16">
