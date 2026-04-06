@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>SafeGuard - เช็คเบี้ยประกันรถยนต์</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Athiti:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <script type="importmap">{"imports":{"recharts":"https://aistudiocdn.com/recharts@^3.4.1","react/":"https://aistudiocdn.com/react@^19.2.0/","react":"https://aistudiocdn.com/react@^19.2.0","@google/genai":"https://aistudiocdn.com/@google/genai@^1.30.0","lucide-react":"https://aistudiocdn.com/lucide-react@^0.555.0","react-dom/":"https://aistudiocdn.com/react-dom@^19.2.0/","@libsql/client":"https://aistudiocdn.com/@libsql/client@^0.15.15"}}</script>
+    <style>
+      :root {
+        --primary-gradient: linear-gradient(135deg, #2563EB 0%, #06B6D4 100%);
+      }
+      
+      body, button, input, select, textarea, h1, h2, h3, h4, h5, h6, span, div, p, a {
+        font-family: 'Athiti', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        -webkit-font-smoothing: antialiased;
+      }
+      
+      body {
+        background: #F8FAFC; /* Default Fallback */
+        color: #1E293B;
+        min-height: 100vh;
+      }
+
+      /* Chat Bubble AI */
+      .bubble-ai {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        color: #1E293B;
+      }
+
+      /* Chat Bubble User */
+      .bubble-user {
+        background: var(--primary-gradient);
+        color: white;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+      }
+
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { 
+        -ms-overflow-style: none; 
+        scrollbar-width: none; 
+      }
+      
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+      
+      .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+      .animate-slide-up { animation: slideUp 0.4s ease-out; }
+      .animate-scale-up { animation: scaleUp 0.3s ease-out; }
+
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+  </head>
+  <body>
+    <div id="root" class="h-screen w-full overflow-hidden"></div>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>
