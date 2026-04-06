@@ -343,9 +343,6 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout,
                             <LayoutDashboard className="text-white"/> SafeGuard
                             <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">{currentUser.role}</span>
                         </button>
-                        <button onClick={onLogout} className="text-xs bg-red-500/20 hover:bg-red-500 text-red-200 hover:text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1">
-                            <LogOut size={14}/> ออกจากระบบ
-                        </button>
                     </div>
                     {/* Mobile Only Header inside Sidebar (optional space filler or User Info) */}
                     <div className="p-6 border-b border-slate-800 bg-gradient-to-r from-blue-600 to-blue-800 md:hidden mt-16">
