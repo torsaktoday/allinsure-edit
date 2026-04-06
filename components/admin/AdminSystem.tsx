@@ -319,22 +319,12 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout,
             
             {/* Mobile Header */}
             <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-slate-900 text-white z-30 flex items-center px-4 justify-between shadow-md">
-                <div className="font-bold text-lg flex items-center gap-2">
+                <button onClick={onSwitchToChat} className="font-bold text-lg flex items-center gap-2 hover:opacity-80 transition">
                     <LayoutDashboard className="text-white"/> SafeGuard
-                </div>
-                <div className="flex items-center gap-2">
-                    {onSwitchToChat && (
-                        <button onClick={onSwitchToChat} className="p-2 hover:bg-cyan-500/20 rounded-lg transition">
-                            <MessageSquare size={18} className="text-cyan-400"/>
-                        </button>
-                    )}
-                    <button onClick={onLogout} className="p-2 hover:bg-red-500/20 rounded-lg transition">
-                        <LogOut size={18} className="text-red-400"/>
-                    </button>
-                    <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2">
-                        {isSidebarOpen ? <X size={24}/> : <Menu size={24}/>}
-                    </button>
-                </div>
+                </button>
+                <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2">
+                    {isSidebarOpen ? <X size={24}/> : <Menu size={24}/>}
+                </button>
             </div>
 
             {/* Sidebar Overlay (Mobile) */}
@@ -349,20 +339,13 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout,
                 md:relative md:translate-x-0
             `}>
                     <div className="p-6 font-bold text-xl items-center gap-2 border-b border-slate-800 bg-gradient-to-r from-blue-600 to-blue-800 hidden md:flex justify-between">
-                        <div className="flex items-center gap-2">
+                        <button onClick={onSwitchToChat} className="flex items-center gap-2 hover:opacity-80 transition">
                             <LayoutDashboard className="text-white"/> SafeGuard
                             <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">{currentUser.role}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            {onSwitchToChat && (
-                                <button onClick={onSwitchToChat} className="text-xs bg-cyan-500/20 hover:bg-cyan-500 text-cyan-200 hover:text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1">
-                                    <MessageSquare size={14}/> ทดสอบแชท
-                                </button>
-                            )}
-                            <button onClick={onLogout} className="text-xs bg-red-500/20 hover:bg-red-500 text-red-200 hover:text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1">
-                                <LogOut size={14}/> ออกจากระบบ
-                            </button>
-                        </div>
+                        </button>
+                        <button onClick={onLogout} className="text-xs bg-red-500/20 hover:bg-red-500 text-red-200 hover:text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                            <LogOut size={14}/> ออกจากระบบ
+                        </button>
                     </div>
                     {/* Mobile Only Header inside Sidebar (optional space filler or User Info) */}
                     <div className="p-6 border-b border-slate-800 bg-gradient-to-r from-blue-600 to-blue-800 md:hidden mt-16">
