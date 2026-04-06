@@ -381,6 +381,22 @@ export const ChatSystem: React.FC<ChatSystemProps> = ({ masterData, settings = [
                 return;
             }
             
+            // FIRST: Try SearchEngine with fuzzy matching (handles typos like "ชิวิค" → "Civic")
+            const searchAction = SearchEngine.analyzeQuery(query, searchContext, masterData.kb, masterData.models, masterData.makes);
+            
+            // If SearchEngine found a match, use it instead of AI
+            if (searchAction.type === 'EXECUTE_SEARCH' || searchAction.type === 'REFINE_SEARCH') {
+                console.log("SearchEngine found match with fuzzy matching, using local search");
+                const activeContext = searchAction.type === 'REFINE_SEARCH' ? searchContext! : (searchAction as any).context;
+                const filters = (searchAction as any).filters || {};
+                
+                const { exact, alternative } = await executePlanSearch(activeContext, filters);
+                handleSearchResults(query, activeContext, filters, exact, alternative);
+                setIsLoading(false);
+                return;
+            }
+            
+            // SECOND: If SearchEngine couldn't handle it, use AI
             // Determine which AI service to use based on model
             let aiRes: AIProcessResult;
             
