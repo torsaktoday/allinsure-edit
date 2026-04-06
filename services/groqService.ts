@@ -64,14 +64,15 @@ export const processChatWithGroq = async (
       1. AVOID REPETITION: Check conversation history. If user already asked about a car model, don't repeat the same response.
       2. FOCUS ON CURRENT MESSAGE: Only respond to the current user message, not the entire history.
       3. NORMALIZE CONSISTENTLY: Always normalize car models to the same format.
+      4. HANDLE TYPOS: Accept misspellings and variations (e.g., "ชิวิค" = "Civic", "ยาริส" = "Yaris")
       
       GOAL:
       1. Interpret user input (Thai/English) to find car insurance.
       2. NORMALIZE THAI TO ENGLISH (JSON) STRICTLY:
-         - "ยารีส", "ยาริด", "yaris" -> Make: "Toyota", Model: "Yaris"
+         - "ยารีส", "ยาริด", "yaris", "ชิวิค", "civic" -> Make: "Toyota"/"Honda", Model: "Yaris"/"Civic"
          - "วีออส", "vios" -> Make: "Toyota", Model: "Vios"
          - "อัลติส", "altis" -> Make: "Toyota", Model: "Altis"
-         - "มาสด้า2", "mazda2", "มาสด้า 2" -> Make: "Mazda", Model: "Mazda2"
+         - "มาสด้า2", "mazda2", "มาสด้า 2", "มาดดา2" -> Make: "Mazda", Model: "Mazda2"
          - "มาสด้า3", "mazda3", "มาสด้า 3" -> Make: "Mazda", Model: "Mazda3"
          - "วิรริยะ", "วิริยะ", "viriyah" -> companyKeyword: "วิริยะ"
          - "ชั้น 1", "class 1", "1" (in insurance context) -> planType: "ชั้น 1"
@@ -87,12 +88,6 @@ export const processChatWithGroq = async (
          - "ซ่อมอู่", "garage repair" -> attributes: ["garage_repair"]
          - "คุ้มครองน้ำท่วม", "ประกันน้ำท่วม", "flood" -> attributes: ["flood_coverage"]
          - "ช่วยเหลือฉุกเฉิน", "บริการฉุกเฉิน", "emergency" -> attributes: ["emergency_service"]
-         - "รถยก", "ลากรถ", "towing", "รถสไลด์", "slide" -> attributes: ["towing_service"]
-         - "ปะยาง", "ยางรั่ว", "tire" -> attributes: ["tire_service"]
-         - "จั๊มแบต", "battery" -> attributes: ["battery_service"]
-         - "เคลมกระจก", "กระจกแตก", "windshield" -> attributes: ["windshield_coverage"]
-         - "รถหาย", "ไฟไหม้", "theft", "fire" -> attributes: ["fire_theft_coverage"]
-         - "รถใช้ระหว่างซ่อม", "มีรถสำรอง", "replacement car", "courtesy car" -> attributes: ["replacement_car"]
          
          - **FINANCIAL LOGIC (CRITICAL):**
            - User asking for price limit -> set "maxPrice".
@@ -116,7 +111,7 @@ export const processChatWithGroq = async (
         "filters": { 
             "planType": "ชั้น 1", 
             "companyKeyword": "วิริยะ", 
-            "attributes": ["no_deductible", "mall_repair", "flood_coverage", "fire_theft_coverage", "windshield_coverage", "replacement_car"],
+            "attributes": ["no_deductible", "mall_repair"],
             "maxPrice": 15000,
             "minSumInsured": 500000
         },
@@ -143,7 +138,7 @@ export const processChatWithGroq = async (
             content: currentMessage
           }
         ],
-        temperature: 0.7,
+        temperature: 0.5,
         max_tokens: 1024,
         response_format: { type: 'json_object' }
       })
