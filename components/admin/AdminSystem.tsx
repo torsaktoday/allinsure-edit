@@ -768,12 +768,12 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout,
                                     <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
                                 </optgroup>
                                 <optgroup label="Groq (Fast & Powerful)">
-                                    <option value="groq-mixtral-8x7b-32768">Mixtral 8x7B (Fast & Powerful)</option>
-                                    <option value="groq-llama-3.1-70b-versatile">Llama 3.1 70B (Versatile)</option>
-                                    <option value="groq-llama-3.1-8b-instant">Llama 3.1 8B (Fast & Lightweight)</option>
-                                    <option value="groq-gemma-7b-it">Gemma 7B (Efficient)</option>
-                                    <option value="groq-compound">Compound (Advanced)</option>
+                                    <option value="llama-3.1-8b-instant">Llama 3.1 8B Instant (Fastest)</option>
+                                    <option value="llama-3.3-70b-versatile">Llama 3.3 70B Versatile (Best Balance)</option>
+                                    <option value="openai/gpt-oss-20b">GPT-OSS 20B (Fast)</option>
                                     <option value="openai/gpt-oss-120b">GPT-OSS 120B (Powerful Reasoning)</option>
+                                    <option value="groq/compound">Compound (Advanced System)</option>
+                                    <option value="groq/compound-mini">Compound Mini (Lightweight)</option>
                                 </optgroup>
                             </select>
                             <p className="text-xs text-slate-400">เลือกโมเดล AI ที่ต้องการใช้งาน (Groq เร็วกว่า, Gemini ฉลาดกว่า)</p>
