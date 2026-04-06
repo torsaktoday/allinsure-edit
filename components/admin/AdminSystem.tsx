@@ -105,10 +105,10 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout,
         
         // Check AI connection based on selected model
         let apiOk = false;
-        if (aiModel.includes('groq')) {
-            // Extract model name from groq-xxx format
-            const modelName = aiModel.replace('groq-', '');
-            apiOk = await checkGroqConnection(modelName, customKey);
+        if (aiModel.includes('groq') || aiModel.includes('llama') || aiModel.includes('openai/')) {
+            // Use Groq (includes all Groq models)
+            // Don't strip prefix - use model name as-is
+            apiOk = await checkGroqConnection(aiModel, customKey);
         } else {
             apiOk = await checkGeminiConnection(aiModel, customKey);
         }

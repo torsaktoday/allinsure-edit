@@ -8,11 +8,6 @@ const getGroqApiKey = (): string => {
       // @ts-ignore
       return import.meta.env.VITE_GROQ_API_KEY;
     }
-    // @ts-ignore
-    if (typeof process !== 'undefined' && process.env?.GROQ_API_KEY) {
-      // @ts-ignore
-      return process.env.GROQ_API_KEY;
-    }
   } catch (e) {}
   return '';
 };
