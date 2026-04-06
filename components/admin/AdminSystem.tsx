@@ -3,6 +3,7 @@ import { User, UserRole, Lead, InsurancePlan, Company, CarMake, CarModel, Knowle
 import { LayoutDashboard, User as UserIcon, FileText, Briefcase, Car, HelpCircle, Settings, LogOut, Activity, Server, Cpu, Edit, Trash, Eye, X, Palette, Image as ImageIcon, Sparkles, MessageSquare, Menu, RefreshCw, AlertTriangle, Trash2, Database, Search, Download, MapPin, Globe, Wifi, Link as LinkIcon, Shield, FileText as FileTextIcon, Zap, Bot, User as UserCircle } from 'lucide-react';
 import { api } from '../../services/api';
 import { checkGeminiConnection } from '../../services/geminiService';
+import { checkGroqConnection } from '../../services/groqService';
 import { PlanEditorModal } from './PlanEditorModal';
 
 interface AdminSystemProps {
@@ -102,8 +103,16 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout,
             setSystemStatus(prev => ({ ...prev, db: 'ไม่พบการเชื่อมต่อ' }));
         }
         
-        // Pass the current custom key (from state) to check connection
-        const apiOk = await checkGeminiConnection(aiModel, customKey);
+        // Check AI connection based on selected model
+        let apiOk = false;
+        if (aiModel.includes('groq')) {
+            // Extract model name from groq-xxx format
+            const modelName = aiModel.replace('groq-', '');
+            apiOk = await checkGroqConnection(modelName, customKey);
+        } else {
+            apiOk = await checkGeminiConnection(aiModel, customKey);
+        }
+        
         setSystemStatus(prev => ({ ...prev, api: apiOk ? 'เชื่อมต่อแล้ว' : 'ขัดข้อง (ตรวจสอบ Key)' }));
     };
     
@@ -752,12 +761,22 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout,
                                 }} 
                                 className="w-full p-3 border rounded-xl bg-slate-50"
                             >
-                                <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended)</option>
-                                <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
-                                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                                <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
+                                <optgroup label="Google Gemini">
+                                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended)</option>
+                                    <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
+                                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                                    <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
+                                </optgroup>
+                                <optgroup label="Groq (Fast & Powerful)">
+                                    <option value="groq-mixtral-8x7b-32768">Mixtral 8x7B (Fast & Powerful)</option>
+                                    <option value="groq-llama-3.1-70b-versatile">Llama 3.1 70B (Versatile)</option>
+                                    <option value="groq-llama-3.1-8b-instant">Llama 3.1 8B (Fast & Lightweight)</option>
+                                    <option value="groq-gemma-7b-it">Gemma 7B (Efficient)</option>
+                                    <option value="groq-compound">Compound (Advanced)</option>
+                                    <option value="openai/gpt-oss-120b">GPT-OSS 120B (Powerful Reasoning)</option>
+                                </optgroup>
                             </select>
-                            <p className="text-xs text-slate-400">เลือกโมเดล AI ที่ต้องการใช้งานสำหรับการตอบแชท (บันทึกลง Database)</p>
+                            <p className="text-xs text-slate-400">เลือกโมเดล AI ที่ต้องการใช้งาน (Groq เร็วกว่า, Gemini ฉลาดกว่า)</p>
                         </div>
 
                         <div className="space-y-2">

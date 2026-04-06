@@ -7,6 +7,7 @@ import { LeadForm } from '../LeadForm';
 import { ComparisonModal } from '../ComparisonModal';
 import { SearchEngine, SearchAction, SearchFilters } from '../../services/searchEngine';
 import { processChatWithGemini } from '../../services/geminiService';
+import { processChatWithGroq } from '../../services/groqService';
 import { api } from '../../services/api';
 
 interface ChatSystemProps {
@@ -380,8 +381,16 @@ export const ChatSystem: React.FC<ChatSystemProps> = ({ masterData, settings = [
                 return;
             }
             
-            // Pass customApiKey (from DB settings) to the Gemini Service
-            const aiRes = await processChatWithGemini(query, existingMessages, masterData.kb, aiModel, customApiKey);
+            // Determine which AI service to use based on model
+            let aiRes: AIProcessResult;
+            
+            if (aiModel.includes('groq') || aiModel.includes('openai/')) {
+                // Use Groq (includes Groq models and OpenAI models hosted on Groq)
+                aiRes = await processChatWithGroq(query, existingMessages, masterData.kb, aiModel, customApiKey);
+            } else {
+                // Use Gemini (default)
+                aiRes = await processChatWithGemini(query, existingMessages, masterData.kb, aiModel, customApiKey);
+            }
             
             if (aiRes.carData && aiRes.carData.make) {
                 const aiContext = { 
