@@ -25,6 +25,7 @@ const App: React.FC = () => {
     const [showAdminLogin, setShowAdminLogin] = useState(false);
     const [adminUsername, setAdminUsername] = useState('');
     const [adminPassword, setAdminPassword] = useState('');
+    const [showAdminPanel, setShowAdminPanel] = useState(false); // NEW: Toggle between chat and admin
 
     // --- Initialization ---
     useEffect(() => {
@@ -142,13 +143,14 @@ const App: React.FC = () => {
     // --- Main Render ---
     return (
         <div className="h-screen w-full overflow-hidden">
-            {currentUser ? (
+            {currentUser && showAdminPanel ? (
                 // ADMIN VIEW
                 <AdminSystem 
                     currentUser={currentUser} 
                     onLogout={handleLogout}
                     masterData={{ users, companies, makes, models, kb, plans, leads, settings }}
                     refreshData={fetchFreshData}
+                    onSwitchToChat={() => setShowAdminPanel(false)}
                 />
             ) : (
                 // CLIENT VIEW
@@ -156,6 +158,7 @@ const App: React.FC = () => {
                     masterData={{ companies, makes, models, kb, plans }} 
                     settings={settings}
                     onAdminLoginClick={() => setShowAdminLogin(true)}
+                    onAdminPanelClick={currentUser ? () => setShowAdminPanel(true) : undefined}
                 />
             )}
 

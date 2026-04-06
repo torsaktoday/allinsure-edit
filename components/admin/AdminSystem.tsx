@@ -19,9 +19,10 @@ interface AdminSystemProps {
         settings: SystemSetting[];
     };
     refreshData: () => Promise<void> | void;
+    onSwitchToChat?: () => void; // NEW: Switch back to chat
 }
 
-export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout, masterData, refreshData }) => {
+export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout, masterData, refreshData, onSwitchToChat }) => {
     const [activeAdminTab, setActiveAdminTab] = useState<'dashboard'|'leads'|'plans'|'companies'|'cars'|'kb'|'settings'|'ui'|'logs'>('dashboard');
     const [systemStatus, setSystemStatus] = useState({ db: 'รอตรวจสอบ', api: 'รอตรวจสอบ' });
     const [isSyncing, setIsSyncing] = useState(false);
@@ -322,6 +323,11 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout,
                     <LayoutDashboard className="text-white"/> SafeGuard
                 </div>
                 <div className="flex items-center gap-2">
+                    {onSwitchToChat && (
+                        <button onClick={onSwitchToChat} className="p-2 hover:bg-cyan-500/20 rounded-lg transition">
+                            <MessageSquare size={18} className="text-cyan-400"/>
+                        </button>
+                    )}
                     <button onClick={onLogout} className="p-2 hover:bg-red-500/20 rounded-lg transition">
                         <LogOut size={18} className="text-red-400"/>
                     </button>
@@ -347,9 +353,16 @@ export const AdminSystem: React.FC<AdminSystemProps> = ({ currentUser, onLogout,
                             <LayoutDashboard className="text-white"/> SafeGuard
                             <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">{currentUser.role}</span>
                         </div>
-                        <button onClick={onLogout} className="text-xs bg-red-500/20 hover:bg-red-500 text-red-200 hover:text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1">
-                            <LogOut size={14}/> ออกจากระบบ
-                        </button>
+                        <div className="flex items-center gap-2">
+                            {onSwitchToChat && (
+                                <button onClick={onSwitchToChat} className="text-xs bg-cyan-500/20 hover:bg-cyan-500 text-cyan-200 hover:text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                                    <MessageSquare size={14}/> ทดสอบแชท
+                                </button>
+                            )}
+                            <button onClick={onLogout} className="text-xs bg-red-500/20 hover:bg-red-500 text-red-200 hover:text-white px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                                <LogOut size={14}/> ออกจากระบบ
+                            </button>
+                        </div>
                     </div>
                     {/* Mobile Only Header inside Sidebar (optional space filler or User Info) */}
                     <div className="p-6 border-b border-slate-800 bg-gradient-to-r from-blue-600 to-blue-800 md:hidden mt-16">

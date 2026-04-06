@@ -19,11 +19,12 @@ interface ChatSystemProps {
     };
     settings?: SystemSetting[];
     onAdminLoginClick: () => void;
+    onAdminPanelClick?: () => void; // NEW: Switch to admin panel
 }
 
 const FALLBACK_MESSAGE = "สวัสดีครับ วันนี้มีรถยี่ห้อไหนจะให้ผมช่วยเช็คประกันมั้ยครับ เลือกจากด้านล่างนี้เลย";
 
-export const ChatSystem: React.FC<ChatSystemProps> = ({ masterData, settings = [], onAdminLoginClick }) => {
+export const ChatSystem: React.FC<ChatSystemProps> = ({ masterData, settings = [], onAdminLoginClick, onAdminPanelClick }) => {
     // Local State for Chat
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
@@ -660,12 +661,22 @@ export const ChatSystem: React.FC<ChatSystemProps> = ({ masterData, settings = [
                         </div>
                         <h1 className={`text-lg font-extrabold tracking-wide transition-colors ${isHome ? 'text-white drop-shadow-md' : 'text-white'}`}>AutoShield</h1>
                     </div>
-                    <button 
-                        onClick={onAdminLoginClick}
-                        className={`transition flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full ${isHome ? 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-md' : 'bg-white/20 text-white/90 hover:text-white'}`}
-                    >
-                        <Lock size={12} /> เจ้าหน้าที่
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {onAdminPanelClick && (
+                            <button 
+                                onClick={onAdminPanelClick}
+                                className={`transition flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full ${isHome ? 'bg-blue-500/30 text-white hover:bg-blue-500/50 backdrop-blur-md' : 'bg-blue-500/20 text-white/90 hover:text-white'}`}
+                            >
+                                <Lock size={12} /> ระบบแอดมิน
+                            </button>
+                        )}
+                        <button 
+                            onClick={onAdminLoginClick}
+                            className={`transition flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full ${isHome ? 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-md' : 'bg-white/20 text-white/90 hover:text-white'}`}
+                        >
+                            <Lock size={12} /> เจ้าหน้าที่
+                        </button>
+                    </div>
                 </div>
             </header>
 
